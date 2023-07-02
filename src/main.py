@@ -1,20 +1,30 @@
 import os
 import discord
+import json
+import logging
+from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
 
+class Client(commands.Bot):
+    def __init__(self, *, intents: discord.Intents):
+        super().__init__(intents=intents, command_prefix=commands.when_mentioned_or('>'))
 
-class MyClient(discord.Client):
-    async def on_ready(self):
-        print(f'Logged on as {self.user}!')
+    async def setup_hook(self):
+        with open("./src/config.json", 'r') as df:
+            cogs = json.load(df)['cogs']
+        for ext in cogs:
+            try:
+                await client.load_extension(f'cogs.{ext}')
+                print(f"Loaded cog: {ext}")
+            except commands.errors.ExtensionNotFound:
+                print(f"Cog doesn't exist: {ext}")
+        await self.tree.sync() # syncs slash commands
 
-    async def on_message(self, message):
-        print(f'Message from {message.author}: {message.content}')
+intents = discord.Intents(messages=True)
+intents.guilds = True
+client = Client(intents=intents)
 
-
-intents = discord.Intents.default()
-intents.message_content = True
-
-client = MyClient(intents=intents)
 client.run(os.getenv("TOKEN"))
+
