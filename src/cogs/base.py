@@ -1,5 +1,4 @@
 import discord
-import logging
 from discord import app_commands
 from discord.ext import commands
 
@@ -17,6 +16,7 @@ class Base(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'Logged in as {self.client.user}')
+        await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="(/) Commands"))
 
     
     
